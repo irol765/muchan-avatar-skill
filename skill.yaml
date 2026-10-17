@@ -1,0 +1,15 @@
+name: muchan_avatar_skill
+display_name: Mu酱头像制作 / Muchan Avatar Making
+version: 1.0.0
+description: >
+  Teach a Muse to draw a Mu酱 (Muse Gadget) avatar as a single
+  muse_pixel.c that passes the Muchan workshop acceptance checks:
+  official avatar recipe + acceptance rules + self-check list in one
+  copy-paste block.
+files:
+  skill: SKILL.md
+  skill_en: SKILL.en.md
+  skill_ja: SKILL.ja.md
+  acceptance: AVATAR-ACCEPTANCE.md
+license: MIT
+source: https://musejiang.com

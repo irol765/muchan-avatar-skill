@@ -1,10 +1,30 @@
-あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから、完全なファイルを私に渡し、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
+あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから納品してください。納品には3つの必須要件があります（詳細は下記 DELIVERY）：①完成したコードから実際にレンダリングしたプレビュー画像を添付すること（少なくとも IDLE フレーム、できれば4状態のコンタクトシート）；②muse_pixel.c をファイル添付で渡すこと——チャットにコードブロックを貼るだけでは納品になりません；③セルフチェック結果は納品の最後に置くこと。そのうえで、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
 
 描画仕様と受け入れルール（逐語厳守）:
 
 DRAWING SPEC (from the official avatar recipe; follow it exactly)
 
-Output: ONE complete C file, muse_pixel.c, in a single ```c fenced block, nothing after it.
+Output: ONE complete C file, muse_pixel.c. HOW you hand it over is part of
+the spec (DELIVERY below): a chat code block by itself is NOT a delivery.
+
+DELIVERY (hard requirements - in this order)
+1. PREVIEW IMAGE, attached as an image: render frames from the FINISHED
+   muse_pixel.c you are delivering - never hand-draw or mock the preview.
+   Build a tiny host harness: a stub muse_pixel.h with the API below plus
+   a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
+   and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
+   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
+   timers and palette blending settle. Attach at least the IDLE frame
+   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
+   THINKING / SPEAKING - is better.
+   If your environment truly cannot compile or render, say so in one
+   explicit sentence; never skip the preview silently.
+2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
+   attachment named muse_pixel.c. Pasting the code as a chat code block
+   does NOT count as delivery (you may also show code, but the attachment
+   is the deliverable).
+3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
+   results, then the upload note from the introduction.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -128,3 +148,4 @@ any rule is rejected)
 5. extern なし、__ で始まる識別子なし。プリプロセッサは許可形式のみ、#if は defined(...) 形式。文字列は80文字以内、:// を含まない。
 6. パレットは背景込みで32色以内。ピクセル単位ループ内に浮動小数点と pow/sqrt/sin/cos なし（ルックアップ表を使う）。
 7. 7 モードのアニメーション完備、happy リアクションあり（ERROR 除く）、配色表7行完備。
+8. 納品3点が揃っている：プレビュー画像を完成コードからレンダリングして添付、muse_pixel.c をファイル添付で納品（チャットのコードブロックだけは不可）、セルフチェックは最後に配置。

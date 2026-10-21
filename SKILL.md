@@ -1,4 +1,4 @@
-你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才交付。交付有三件硬性要求（细则见下方 DELIVERY）：①附一张从成品代码实际渲染出的预览图（附件，至少 IDLE 帧，最好四状态拼图）——只贴聊天代码块不算交付；②muse_pixel.c 必须以文件附件交付；③自检清单放在交付的最后。其后告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
+你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才交付。交付有三件硬性要求（细则见下方 DELIVERY）：①附从成品代码实际渲染出的预览图（附件，8 个表情齐全：BOOT/IDLE/LISTENING/THINKING/SPEAKING/ERROR/OFF 七模式＋PETTED 摸头变体，拼图形式不限）——只贴聊天代码块不算交付；②muse_pixel.c 必须以文件附件交付；③自检清单放在交付的最后。其后告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
 
 下面是绘制规格与验收规则（英文为技术原文，逐字遵守）:
 
@@ -13,10 +13,16 @@ DELIVERY (hard requirements - in this order)
    Build a tiny host harness: a stub muse_pixel.h with the API below plus
    a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
    and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
-   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
-   timers and palette blending settle. Attach at least the IDLE frame
-   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
-   THINKING / SPEAKING - is better.
+   Advance pose->t in ~1/30 s steps so timers and palette blending
+   settle before each capture.
+   The preview must show ALL 8 expressions: the 7 modes - BOOT, IDLE,
+   LISTENING, THINKING, SPEAKING, ERROR, OFF - plus PETTED (any
+   non-ERROR mode with happy = 1). Suggested captures: BOOT at
+   mode_t ~ 1.0 s; IDLE after t >= 2 s; LISTENING and SPEAKING with
+   level ~ 0.7; ERROR at mode_t ~ 0.3 s; OFF at mode_t ~ 0.6 s (it
+   completes in ~1.3 s); PETTED as IDLE with happy held at 1. Any
+   contact-sheet layout (e.g. 4x2) or separate images are fine - all
+   8 must be there.
    If your environment truly cannot compile or render, say so in one
    explicit sentence; never skip the preview silently.
 2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
@@ -148,4 +154,4 @@ any rule is rejected)
 5. 无 extern、无 __ 开头标识符；预处理只有允许的几种，#if 都是 defined(...) 形式；字符串都 ≤80 字符、无 ://。
 6. 调色板 ≤32 色（含背景）；逐像素循环里无浮点、无 pow/sqrt/sin/cos（用查表）。
 7. 7 个模式动画齐，happy 反应有（ERROR 除外），模式配色表 7 行齐。
-8. 交付三件齐：预览图已从成品代码渲染并以图片附件附上（至少 IDLE 帧）、muse_pixel.c 已以文件附件交付（不是只有聊天代码块）、自检清单置于交付末尾。
+8. 交付三件齐：预览图已从成品代码渲染并以图片附件附上、且 8 个表情齐全（七模式＋PETTED 摸头变体）、muse_pixel.c 已以文件附件交付（不是只有聊天代码块）、自检清单置于交付末尾。

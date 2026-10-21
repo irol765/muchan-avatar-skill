@@ -5,7 +5,7 @@
 
 做法就一句话：把 `SKILL.md` 的内容整段粘给你的 Muse，它会先问清你
 想要的形象，再照官方配方（Meta 官方 Gadgets SDK 的 avatar 规范）和
-Mu酱工坊的验收规格画好、逐项自检后把文件交给你。把文件存好，在
+Mu酱工坊的验收规格画好、逐项自检后交付：渲染预览图（附件）＋ muse_pixel.c（文件附件）——只在聊天里贴代码块不算交付。把文件存好，在
 Mu酱编译工坊上传就能刷进设备（自备源码上传通道开放后）。
 
 ## Fastest path
@@ -13,13 +13,13 @@ Mu酱编译工坊上传就能刷进设备（自备源码上传通道开放后）
 复制下面这段，粘给你的 Muse：
 
 ```
-请按 https://github.com/irol765/muchan-avatar-skill 里的 SKILL.md 为我制作一个 Mu酱头像：先问清我想要的形象，再严格照其中的绘制规格与验收规则产出 muse_pixel.c，交付前逐项过自检清单。
+请按 https://github.com/irol765/muchan-avatar-skill 里的 SKILL.md 为我制作一个 Mu酱头像：先问清我想要的形象，再严格照其中的绘制规格与验收规则产出 muse_pixel.c，交付前逐项过自检清单，并附渲染预览图、以文件附件交付 muse_pixel.c。
 ```
 
 Or in English:
 
 ```
-Please make a Mu酱 avatar for me following SKILL.md in https://github.com/irol765/muchan-avatar-skill : first ask me what character I want, then produce muse_pixel.c strictly to its drawing spec and acceptance rules, and run its self-check list before delivering.
+Please make a Mu酱 avatar for me following SKILL.md in https://github.com/irol765/muchan-avatar-skill : first ask me what character I want, then produce muse_pixel.c strictly to its drawing spec and acceptance rules, run its self-check list, and deliver with a rendered preview image attached and muse_pixel.c as a file attachment.
 ```
 
 ## 文件说明

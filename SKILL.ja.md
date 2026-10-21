@@ -1,4 +1,4 @@
-あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから納品してください。納品には3つの必須要件があります（詳細は下記 DELIVERY）：①完成したコードから実際にレンダリングしたプレビュー画像を添付すること（少なくとも IDLE フレーム、できれば4状態のコンタクトシート）；②muse_pixel.c をファイル添付で渡すこと——チャットにコードブロックを貼るだけでは納品になりません；③セルフチェック結果は納品の最後に置くこと。そのうえで、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
+あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから納品してください。納品には3つの必須要件があります（詳細は下記 DELIVERY）：①完成したコードから実際にレンダリングしたプレビュー画像を添付すること（8表情すべて：7モード＋PETTED なでなでバリアント、コンタクトシート形式は自由）；②muse_pixel.c をファイル添付で渡すこと——チャットにコードブロックを貼るだけでは納品になりません；③セルフチェック結果は納品の最後に置くこと。そのうえで、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
 
 描画仕様と受け入れルール（逐語厳守）:
 
@@ -13,10 +13,16 @@ DELIVERY (hard requirements - in this order)
    Build a tiny host harness: a stub muse_pixel.h with the API below plus
    a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
    and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
-   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
-   timers and palette blending settle. Attach at least the IDLE frame
-   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
-   THINKING / SPEAKING - is better.
+   Advance pose->t in ~1/30 s steps so timers and palette blending
+   settle before each capture.
+   The preview must show ALL 8 expressions: the 7 modes - BOOT, IDLE,
+   LISTENING, THINKING, SPEAKING, ERROR, OFF - plus PETTED (any
+   non-ERROR mode with happy = 1). Suggested captures: BOOT at
+   mode_t ~ 1.0 s; IDLE after t >= 2 s; LISTENING and SPEAKING with
+   level ~ 0.7; ERROR at mode_t ~ 0.3 s; OFF at mode_t ~ 0.6 s (it
+   completes in ~1.3 s); PETTED as IDLE with happy held at 1. Any
+   contact-sheet layout (e.g. 4x2) or separate images are fine - all
+   8 must be there.
    If your environment truly cannot compile or render, say so in one
    explicit sentence; never skip the preview silently.
 2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
@@ -148,4 +154,4 @@ any rule is rejected)
 5. extern なし、__ で始まる識別子なし。プリプロセッサは許可形式のみ、#if は defined(...) 形式。文字列は80文字以内、:// を含まない。
 6. パレットは背景込みで32色以内。ピクセル単位ループ内に浮動小数点と pow/sqrt/sin/cos なし（ルックアップ表を使う）。
 7. 7 モードのアニメーション完備、happy リアクションあり（ERROR 除く）、配色表7行完備。
-8. 納品3点が揃っている：プレビュー画像を完成コードからレンダリングして添付、muse_pixel.c をファイル添付で納品（チャットのコードブロックだけは不可）、セルフチェックは最後に配置。
+8. 納品3点が揃っている：プレビュー画像を完成コードからレンダリングして添付し8表情が全部揃っている（7モード＋PETTED バリアント）、muse_pixel.c をファイル添付で納品（チャットのコードブロックだけは不可）、セルフチェックは最後に配置。

@@ -1,10 +1,30 @@
-You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then hand me the complete file, telling me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
+You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then deliver. Delivery has three hard requirements (see DELIVERY below): (1) attach a preview image actually rendered from the finished code (at least the IDLE frame; a four-state contact sheet is better); (2) deliver muse_pixel.c as a file attachment - a chat code block alone is not a delivery; (3) put the self-check list at the very end of the delivery, then tell me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
 
 Drawing spec and acceptance rules (follow them exactly):
 
 DRAWING SPEC (from the official avatar recipe; follow it exactly)
 
-Output: ONE complete C file, muse_pixel.c, in a single ```c fenced block, nothing after it.
+Output: ONE complete C file, muse_pixel.c. HOW you hand it over is part of
+the spec (DELIVERY below): a chat code block by itself is NOT a delivery.
+
+DELIVERY (hard requirements - in this order)
+1. PREVIEW IMAGE, attached as an image: render frames from the FINISHED
+   muse_pixel.c you are delivering - never hand-draw or mock the preview.
+   Build a tiny host harness: a stub muse_pixel.h with the API below plus
+   a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
+   and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
+   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
+   timers and palette blending settle. Attach at least the IDLE frame
+   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
+   THINKING / SPEAKING - is better.
+   If your environment truly cannot compile or render, say so in one
+   explicit sentence; never skip the preview silently.
+2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
+   attachment named muse_pixel.c. Pasting the code as a chat code block
+   does NOT count as delivery (you may also show code, but the attachment
+   is the deliverable).
+3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
+   results, then the upload note from the introduction.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -128,3 +148,4 @@ Self-check before you deliver (every item must pass)
 5. No extern, no __-prefixed identifiers; only the allowed preprocessor forms, every #if in defined(...) form; strings <= 80 chars, no ://.
 6. Palette <= 32 entries including the background; no float and no pow/sqrt/sin/cos inside per-pixel loops (use lookup tables).
 7. All 7 mode animations present, happy reaction present (except ERROR), all 7 scheme rows present.
+8. Delivery complete: preview image rendered from the finished code and attached, muse_pixel.c delivered as a file attachment (not only a chat code block), self-check list placed at the very end.

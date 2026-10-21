@@ -1,10 +1,30 @@
-你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才把完整文件交给我，并告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
+你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才交付。交付有三件硬性要求（细则见下方 DELIVERY）：①附一张从成品代码实际渲染出的预览图（附件，至少 IDLE 帧，最好四状态拼图）——只贴聊天代码块不算交付；②muse_pixel.c 必须以文件附件交付；③自检清单放在交付的最后。其后告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
 
 下面是绘制规格与验收规则（英文为技术原文，逐字遵守）:
 
 DRAWING SPEC (from the official avatar recipe; follow it exactly)
 
-Output: ONE complete C file, muse_pixel.c, in a single ```c fenced block, nothing after it.
+Output: ONE complete C file, muse_pixel.c. HOW you hand it over is part of
+the spec (DELIVERY below): a chat code block by itself is NOT a delivery.
+
+DELIVERY (hard requirements - in this order)
+1. PREVIEW IMAGE, attached as an image: render frames from the FINISHED
+   muse_pixel.c you are delivering - never hand-draw or mock the preview.
+   Build a tiny host harness: a stub muse_pixel.h with the API below plus
+   a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
+   and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
+   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
+   timers and palette blending settle. Attach at least the IDLE frame
+   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
+   THINKING / SPEAKING - is better.
+   If your environment truly cannot compile or render, say so in one
+   explicit sentence; never skip the preview silently.
+2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
+   attachment named muse_pixel.c. Pasting the code as a chat code block
+   does NOT count as delivery (you may also show code, but the attachment
+   is the deliverable).
+3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
+   results, then the upload note from the introduction.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -128,3 +148,4 @@ any rule is rejected)
 5. 无 extern、无 __ 开头标识符；预处理只有允许的几种，#if 都是 defined(...) 形式；字符串都 ≤80 字符、无 ://。
 6. 调色板 ≤32 色（含背景）；逐像素循环里无浮点、无 pow/sqrt/sin/cos（用查表）。
 7. 7 个模式动画齐，happy 反应有（ERROR 除外），模式配色表 7 行齐。
+8. 交付三件齐：预览图已从成品代码渲染并以图片附件附上（至少 IDLE 帧）、muse_pixel.c 已以文件附件交付（不是只有聊天代码块）、自检清单置于交付末尾。

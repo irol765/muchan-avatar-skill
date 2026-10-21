@@ -1,4 +1,4 @@
-You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then deliver. Delivery has three hard requirements (see DELIVERY below): (1) attach a preview image actually rendered from the finished code (at least the IDLE frame; a four-state contact sheet is better); (2) deliver muse_pixel.c as a file attachment - a chat code block alone is not a delivery; (3) put the self-check list at the very end of the delivery, then tell me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
+You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then deliver. Delivery has three hard requirements (see DELIVERY below): (1) attach preview images actually rendered from the finished code, covering all 8 expressions (the 7 modes plus the PETTED variant; any contact-sheet layout); (2) deliver muse_pixel.c as a file attachment - a chat code block alone is not a delivery; (3) put the self-check list at the very end of the delivery, then tell me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
 
 Drawing spec and acceptance rules (follow them exactly):
 
@@ -13,10 +13,16 @@ DELIVERY (hard requirements - in this order)
    Build a tiny host harness: a stub muse_pixel.h with the API below plus
    a main that calls muse_pixel_set_size(256), muse_pixel_render(pose)
    and muse_pixel_scale(...) into an RGB565 buffer and writes a PNG.
-   Advance pose->t in ~1/30 s steps for at least 2 s before capturing, so
-   timers and palette blending settle. Attach at least the IDLE frame
-   (mode IDLE, level 0); a 2x2 contact sheet - IDLE / LISTENING /
-   THINKING / SPEAKING - is better.
+   Advance pose->t in ~1/30 s steps so timers and palette blending
+   settle before each capture.
+   The preview must show ALL 8 expressions: the 7 modes - BOOT, IDLE,
+   LISTENING, THINKING, SPEAKING, ERROR, OFF - plus PETTED (any
+   non-ERROR mode with happy = 1). Suggested captures: BOOT at
+   mode_t ~ 1.0 s; IDLE after t >= 2 s; LISTENING and SPEAKING with
+   level ~ 0.7; ERROR at mode_t ~ 0.3 s; OFF at mode_t ~ 0.6 s (it
+   completes in ~1.3 s); PETTED as IDLE with happy held at 1. Any
+   contact-sheet layout (e.g. 4x2) or separate images are fine - all
+   8 must be there.
    If your environment truly cannot compile or render, say so in one
    explicit sentence; never skip the preview silently.
 2. THE FILE, attached as a file: deliver muse_pixel.c as a real file
@@ -148,4 +154,4 @@ Self-check before you deliver (every item must pass)
 5. No extern, no __-prefixed identifiers; only the allowed preprocessor forms, every #if in defined(...) form; strings <= 80 chars, no ://.
 6. Palette <= 32 entries including the background; no float and no pow/sqrt/sin/cos inside per-pixel loops (use lookup tables).
 7. All 7 mode animations present, happy reaction present (except ERROR), all 7 scheme rows present.
-8. Delivery complete: preview image rendered from the finished code and attached, muse_pixel.c delivered as a file attachment (not only a chat code block), self-check list placed at the very end.
+8. Delivery complete: preview rendered from the finished code and attached with all 8 expressions (BOOT/IDLE/LISTENING/THINKING/SPEAKING/ERROR/OFF plus the PETTED variant), muse_pixel.c delivered as a file attachment (not only a chat code block), self-check list placed at the very end.

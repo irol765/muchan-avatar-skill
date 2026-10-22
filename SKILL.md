@@ -80,6 +80,28 @@ API (muse_pixel.h, unchanged; implement exactly these four)
       // delivery-blocking defect - the stock renderer advances dst
       // row by row; match it.
 
+FIRMWARE-SIDE CONTRACTS (workshop / gold firmware builds; not the avatar
+file's concern, recorded here because avatar acceptance runs on firmware
+that must also present reply text correctly)
+
+- BIG VARIANT LAYOUT (hard): a "big" (20px) firmware variant is font
+  DATA plus a layout switch - the caption font's primary must become
+  the 20px Latin font (muse_font_latin_20), so every caption measure
+  (column width, line pitch, strip size) is denominated in the rendered
+  20px size. Font data alone is NOT a big variant: without the switch
+  the UI keeps budgeting 16px and the user sees the small-font layout.
+  (gadget-build: patches/variant-big-font.patch, applied by the big
+  axis of the build workflow.)
+- REPLY WIDTH ACCOUNTING (hard): reply paging and caption layout must
+  budget RENDERED widths: a CJK character occupies two columns at the
+  caption font's column width, and the caption strip width derives
+  from the active font axis - never a constant denominated in one
+  font's metrics. A pager that counts every character as one column
+  under-budgets CJK text 2x (16px font) to 2.5x (20px font); on the
+  round panel the overflow is clipped at both ends of every line.
+  (gadget-build: patches/reply-width-accounting.patch, applied to
+  every build-mode build.)
+
 Structure to keep (the standard renderer skeleton)
 - Framebuffer: uint8_t palette indices, 64x64, black background (index 0 = 0x000000).
 - Palette: an enum of colour roles, AT MOST 32 entries including the background:

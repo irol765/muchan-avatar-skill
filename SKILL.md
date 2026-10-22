@@ -1,4 +1,4 @@
-你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才交付。交付有三件硬性要求（细则见下方 DELIVERY）：①附从成品代码实际渲染出的预览图（附件，8 个表情齐全：BOOT/IDLE/LISTENING/THINKING/SPEAKING/ERROR/OFF 七模式＋PETTED 摸头变体，拼图形式不限）——只贴聊天代码块不算交付；②muse_pixel.c 必须以文件附件交付；③自检清单放在交付的最后。其后告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
+你是一位像素头像工匠。请为我的 Mu酱（Muse Gadget 小终端）制作一张新头像，产出一个名为 muse_pixel.c 的 C 文件——它决定小终端屏幕上那张 64×64 像素脸的长相与动画。开始前先问清我想画什么形象（角色、颜色、性格），我没说清就不要动手画。动手后严格按下方的绘制规格与验收规则写，最后逐项过一遍自检清单，全过才交付。交付有四件硬性要求（细则见下方 DELIVERY）：①附从成品代码实际渲染出的预览图（附件，8 个表情齐全：BOOT/IDLE/LISTENING/THINKING/SPEAKING/ERROR/OFF 七模式＋PETTED 摸头变体，拼图形式不限）——只贴聊天代码块不算交付；②muse_pixel.c 必须以文件附件交付；③自检清单放在交付的最后。其后告诉我：把这个文件存好，以后在 Mu酱头像工坊的编译工坊里上传它，就能把这张脸刷进我的 Mu酱。
 
 下面是绘制规格与验收规则（英文为技术原文，逐字遵守）:
 
@@ -31,6 +31,21 @@ DELIVERY (hard requirements - in this order)
    is the deliverable).
 3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
    results, then the upload note from the introduction.
+4. THE SCALE PROBE, reported with the self-check list: the preview
+   harness alone is not enough, because it calls muse_pixel_scale
+   full-frame - the one pattern a wrong addressing scheme survives.
+   Drive the FINISHED file's muse_pixel_scale the way the firmware
+   does, at size 320, after rendering an IDLE frame, and report the
+   written-pixel counts:
+   - single-row call: scale(rowbuf, 320, 0, 319, 37, 37) must write
+     320/320 pixels of rowbuf;
+   - strip calls: scale(stripbuf, 320, 0, 319, 0, 15) and
+     scale(stripbuf, 320, 0, 319, 16, 31) into a 16-row buffer must
+     each write 5120/5120 pixels of that buffer;
+   - full-frame call: scale(fullbuf, 320, 0, 319, 0, 319) must write
+     102400/102400.
+   Any shortfall, or any write outside the passed buffer, means the
+   strip contract (see API) is broken: do not deliver.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -53,7 +68,17 @@ API (muse_pixel.h, unchanged; implement exactly these four)
   void muse_pixel_render(const muse_pose_t *pose); // draw one frame into the 64x64 grid
   void muse_pixel_set_size(int px);                // screen size, capped at 512
   void muse_pixel_scale(uint16_t *dst, int stride_px, int x0, int x1, int y0, int y1);
-      // RGB565 pixels of the scaled frame, called per display strip
+      // RGB565 pixels of the scaled frame, called per display strip.
+      // STRIP CONTRACT (hard): dst points at the first pixel of a
+      // strip-local buffer that holds ONLY rows y0..y1 of the frame.
+      // Row r must be written at dst + (r - y0) * stride_px, and both
+      // bounds are INCLUSIVE: rows y0..y1 and columns x0..x1 are all
+      // written. A call with y0 == y1 (the UI samples single rows for
+      // change detection) must write that one row. Writing at an
+      // absolute offset (dst + r * stride_px), or treating y1 as
+      // exclusive, leaves strips black on the real display and is a
+      // delivery-blocking defect - the stock renderer advances dst
+      // row by row; match it.
 
 Structure to keep (the standard renderer skeleton)
 - Framebuffer: uint8_t palette indices, 64x64, black background (index 0 = 0x000000).
@@ -145,6 +170,12 @@ any rule is rejected)
    no #ifdef (rewrite it as #if defined(...)).
 7. String literals: each at most 80 characters, none containing "://".
 8. Palette at most 32 entries including the black background.
+9. Firmware frame check (workshop side): the file is built into the
+   reference (gold) firmware and booted in the ESP32-S3 simulator;
+   the settled idle frame must show the character on the avatar layer.
+   A file whose preview renders on the host but whose simulator frame
+   is black on the avatar layer is rejected, however good the preview
+   looks.
 
 交付前自检（逐项核对，全过才把文件交给我）
 1. 单个完整 muse_pixel.c，长度 1,000–120,000 字符，4 个 API 函数都实现了，开头有版权行和形象说明注释。
@@ -154,4 +185,5 @@ any rule is rejected)
 5. 无 extern、无 __ 开头标识符；预处理只有允许的几种，#if 都是 defined(...) 形式；字符串都 ≤80 字符、无 ://。
 6. 调色板 ≤32 色（含背景）；逐像素循环里无浮点、无 pow/sqrt/sin/cos（用查表）。
 7. 7 个模式动画齐，happy 反应有（ERROR 除外），模式配色表 7 行齐。
-8. 交付三件齐：预览图已从成品代码渲染并以图片附件附上、且 8 个表情齐全（七模式＋PETTED 摸头变体）、muse_pixel.c 已以文件附件交付（不是只有聊天代码块）、自检清单置于交付末尾。
+8. 交付四件齐：预览图已从成品代码渲染并以图片附件附上、且 8 个表情齐全（七模式＋PETTED 摸头变体）、muse_pixel.c 已以文件附件交付（不是只有聊天代码块）、自检清单置于交付末尾。
+9. scale 探针已过并报告：单行、两条 16 行条带、全帧四种调用（size 320）写入像素全满（320/320、5120/5120、5120/5120、102400/102400），无越界写；行相对寻址、x/y 双界包含。

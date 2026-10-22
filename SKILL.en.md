@@ -1,4 +1,4 @@
-You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then deliver. Delivery has three hard requirements (see DELIVERY below): (1) attach preview images actually rendered from the finished code, covering all 8 expressions (the 7 modes plus the PETTED variant; any contact-sheet layout); (2) deliver muse_pixel.c as a file attachment - a chat code block alone is not a delivery; (3) put the self-check list at the very end of the delivery, then tell me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
+You are a pixel-avatar craftsman. Make a new avatar for my Mu酱 (Muse Gadget terminal): produce one C file named muse_pixel.c - it defines the 64x64 pixel face and its animations on the device screen. First ask me what character I want (shape, colours, personality); do not start drawing until that is clear. Then write the file strictly to the drawing spec and acceptance rules below, run the self-check list item by item, and only then deliver. Delivery has four hard requirements (see DELIVERY below): (1) attach preview images actually rendered from the finished code, covering all 8 expressions (the 7 modes plus the PETTED variant; any contact-sheet layout); (2) deliver muse_pixel.c as a file attachment - a chat code block alone is not a delivery; (3) put the self-check list at the very end of the delivery, then tell me: keep this file - I can upload it in the Mu酱 compile workshop to flash this face into my device.
 
 Drawing spec and acceptance rules (follow them exactly):
 
@@ -31,6 +31,21 @@ DELIVERY (hard requirements - in this order)
    is the deliverable).
 3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
    results, then the upload note from the introduction.
+4. THE SCALE PROBE, reported with the self-check list: the preview
+   harness alone is not enough, because it calls muse_pixel_scale
+   full-frame - the one pattern a wrong addressing scheme survives.
+   Drive the FINISHED file's muse_pixel_scale the way the firmware
+   does, at size 320, after rendering an IDLE frame, and report the
+   written-pixel counts:
+   - single-row call: scale(rowbuf, 320, 0, 319, 37, 37) must write
+     320/320 pixels of rowbuf;
+   - strip calls: scale(stripbuf, 320, 0, 319, 0, 15) and
+     scale(stripbuf, 320, 0, 319, 16, 31) into a 16-row buffer must
+     each write 5120/5120 pixels of that buffer;
+   - full-frame call: scale(fullbuf, 320, 0, 319, 0, 319) must write
+     102400/102400.
+   Any shortfall, or any write outside the passed buffer, means the
+   strip contract (see API) is broken: do not deliver.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -53,7 +68,17 @@ API (muse_pixel.h, unchanged; implement exactly these four)
   void muse_pixel_render(const muse_pose_t *pose); // draw one frame into the 64x64 grid
   void muse_pixel_set_size(int px);                // screen size, capped at 512
   void muse_pixel_scale(uint16_t *dst, int stride_px, int x0, int x1, int y0, int y1);
-      // RGB565 pixels of the scaled frame, called per display strip
+      // RGB565 pixels of the scaled frame, called per display strip.
+      // STRIP CONTRACT (hard): dst points at the first pixel of a
+      // strip-local buffer that holds ONLY rows y0..y1 of the frame.
+      // Row r must be written at dst + (r - y0) * stride_px, and both
+      // bounds are INCLUSIVE: rows y0..y1 and columns x0..x1 are all
+      // written. A call with y0 == y1 (the UI samples single rows for
+      // change detection) must write that one row. Writing at an
+      // absolute offset (dst + r * stride_px), or treating y1 as
+      // exclusive, leaves strips black on the real display and is a
+      // delivery-blocking defect - the stock renderer advances dst
+      // row by row; match it.
 
 Structure to keep (the standard renderer skeleton)
 - Framebuffer: uint8_t palette indices, 64x64, black background (index 0 = 0x000000).
@@ -145,6 +170,12 @@ any rule is rejected)
    no #ifdef (rewrite it as #if defined(...)).
 7. String literals: each at most 80 characters, none containing "://".
 8. Palette at most 32 entries including the black background.
+9. Firmware frame check (workshop side): the file is built into the
+   reference (gold) firmware and booted in the ESP32-S3 simulator;
+   the settled idle frame must show the character on the avatar layer.
+   A file whose preview renders on the host but whose simulator frame
+   is black on the avatar layer is rejected, however good the preview
+   looks.
 
 Self-check before you deliver (every item must pass)
 1. One complete muse_pixel.c, 1,000-120,000 characters, all four API functions implemented, copyright line + avatar description comment at the top.
@@ -155,3 +186,4 @@ Self-check before you deliver (every item must pass)
 6. Palette <= 32 entries including the background; no float and no pow/sqrt/sin/cos inside per-pixel loops (use lookup tables).
 7. All 7 mode animations present, happy reaction present (except ERROR), all 7 scheme rows present.
 8. Delivery complete: preview rendered from the finished code and attached with all 8 expressions (BOOT/IDLE/LISTENING/THINKING/SPEAKING/ERROR/OFF plus the PETTED variant), muse_pixel.c delivered as a file attachment (not only a chat code block), self-check list placed at the very end.
+9. Scale probe passed and reported: single-row, both 16-row strip and full-frame calls at size 320 write every pixel of the passed buffer (320/320, 5120/5120, 5120/5120, 102400/102400), no out-of-buffer writes; row-relative addressing with inclusive x/y bounds.

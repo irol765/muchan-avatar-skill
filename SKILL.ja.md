@@ -1,4 +1,4 @@
-あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから納品してください。納品には3つの必須要件があります（詳細は下記 DELIVERY）：①完成したコードから実際にレンダリングしたプレビュー画像を添付すること（8表情すべて：7モード＋PETTED なでなでバリアント、コンタクトシート形式は自由）；②muse_pixel.c をファイル添付で渡すこと——チャットにコードブロックを貼るだけでは納品になりません；③セルフチェック結果は納品の最後に置くこと。そのうえで、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
+あなたはピクセルアバターの職人です。私の Mu酱（Muse Gadget 端末）に新しいアバターを作ってください。成果物は muse_pixel.c という C ファイル1つで、端末画面の 64×64 ピクセルの顔とアニメーションを決めます。まず、どんなキャラクターにしたいか（形・色・性格）を私に確認してください。それが明確になるまで描き始めないでください。その後、下記の描画仕様と受け入れルールを厳密に守って書き、セルフチェックを全項目確認してから納品してください。納品には4つの必須要件があります（詳細は下記 DELIVERY）：①完成したコードから実際にレンダリングしたプレビュー画像を添付すること（8表情すべて：7モード＋PETTED なでなでバリアント、コンタクトシート形式は自由）；②muse_pixel.c をファイル添付で渡すこと——チャットにコードブロックを貼るだけでは納品になりません；③セルフチェック結果は納品の最後に置くこと。そのうえで、こう伝えてください：このファイルを保管し、Mu酱のコンパイル工房でアップロードすれば、この顔を端末に焼き込めます。
 
 描画仕様と受け入れルール（逐語厳守）:
 
@@ -31,6 +31,21 @@ DELIVERY (hard requirements - in this order)
    is the deliverable).
 3. THE SELF-CHECK LIST, LAST: end the delivery with the self-check
    results, then the upload note from the introduction.
+4. THE SCALE PROBE, reported with the self-check list: the preview
+   harness alone is not enough, because it calls muse_pixel_scale
+   full-frame - the one pattern a wrong addressing scheme survives.
+   Drive the FINISHED file's muse_pixel_scale the way the firmware
+   does, at size 320, after rendering an IDLE frame, and report the
+   written-pixel counts:
+   - single-row call: scale(rowbuf, 320, 0, 319, 37, 37) must write
+     320/320 pixels of rowbuf;
+   - strip calls: scale(stripbuf, 320, 0, 319, 0, 15) and
+     scale(stripbuf, 320, 0, 319, 16, 31) into a 16-row buffer must
+     each write 5120/5120 pixels of that buffer;
+   - full-frame call: scale(fullbuf, 320, 0, 319, 0, 319) must write
+     102400/102400.
+   Any shortfall, or any write outside the passed buffer, means the
+   strip contract (see API) is broken: do not deliver.
 Keep the "// Copyright (c) Meta Platforms, Inc. and affiliates." line at the top, and
 directly below it a comment block describing the avatar you drew: name, shape, colours,
 personality. Include only "muse_pixel.h", <math.h>, <stdbool.h>, <stdint.h>, <stdlib.h>,
@@ -53,7 +68,17 @@ API (muse_pixel.h, unchanged; implement exactly these four)
   void muse_pixel_render(const muse_pose_t *pose); // draw one frame into the 64x64 grid
   void muse_pixel_set_size(int px);                // screen size, capped at 512
   void muse_pixel_scale(uint16_t *dst, int stride_px, int x0, int x1, int y0, int y1);
-      // RGB565 pixels of the scaled frame, called per display strip
+      // RGB565 pixels of the scaled frame, called per display strip.
+      // STRIP CONTRACT (hard): dst points at the first pixel of a
+      // strip-local buffer that holds ONLY rows y0..y1 of the frame.
+      // Row r must be written at dst + (r - y0) * stride_px, and both
+      // bounds are INCLUSIVE: rows y0..y1 and columns x0..x1 are all
+      // written. A call with y0 == y1 (the UI samples single rows for
+      // change detection) must write that one row. Writing at an
+      // absolute offset (dst + r * stride_px), or treating y1 as
+      // exclusive, leaves strips black on the real display and is a
+      // delivery-blocking defect - the stock renderer advances dst
+      // row by row; match it.
 
 Structure to keep (the standard renderer skeleton)
 - Framebuffer: uint8_t palette indices, 64x64, black background (index 0 = 0x000000).
@@ -145,6 +170,12 @@ any rule is rejected)
    no #ifdef (rewrite it as #if defined(...)).
 7. String literals: each at most 80 characters, none containing "://".
 8. Palette at most 32 entries including the black background.
+9. Firmware frame check (workshop side): the file is built into the
+   reference (gold) firmware and booted in the ESP32-S3 simulator;
+   the settled idle frame must show the character on the avatar layer.
+   A file whose preview renders on the host but whose simulator frame
+   is black on the avatar layer is rejected, however good the preview
+   looks.
 
 納品前セルフチェック（全項目パスしてからファイルを渡すこと）
 1. 単一の完全な muse_pixel.c、1,000〜120,000 文字、API 4 関数をすべて実装、冒頭に著作権行とアバター説明コメント。
@@ -154,4 +185,5 @@ any rule is rejected)
 5. extern なし、__ で始まる識別子なし。プリプロセッサは許可形式のみ、#if は defined(...) 形式。文字列は80文字以内、:// を含まない。
 6. パレットは背景込みで32色以内。ピクセル単位ループ内に浮動小数点と pow/sqrt/sin/cos なし（ルックアップ表を使う）。
 7. 7 モードのアニメーション完備、happy リアクションあり（ERROR 除く）、配色表7行完備。
-8. 納品3点が揃っている：プレビュー画像を完成コードからレンダリングして添付し8表情が全部揃っている（7モード＋PETTED バリアント）、muse_pixel.c をファイル添付で納品（チャットのコードブロックだけは不可）、セルフチェックは最後に配置。
+8. 納品4点が揃っている：プレビュー画像を完成コードからレンダリングして添付し8表情が全部揃っている（7モード＋PETTED バリアント）、muse_pixel.c をファイル添付で納品（チャットのコードブロックだけは不可）、セルフチェックは最後に配置。
+9. scale プローブ合格を報告済み：単一行・16行ストリップ×2・全フレームの4呼び出し（size 320）で渡したバッファの全ピクセル書き込み（320/320、5120/5120、5120/5120、102400/102400）、範囲外書き込みなし。行相対アドレス指定、x/y 両境界を含む。
